@@ -109,8 +109,9 @@ async def root():
 @app.get("/health")
 async def health():
     key = bool(ANTHROPIC_API_KEY and ANTHROPIC_API_KEY.startswith("sk-ant-"))
-    modelo_ok = await validar_modelo() if key_ok else False
     key_ok = bool(key and key.startswith("sk-ant-") and len(key) > 20)
+    modelo_ok = await validar_modelo() if key_ok else False
+    
     return {
         "status": "ok" if key_ok and modelo_ok else "degradado",
         "modelo": MODEL,
