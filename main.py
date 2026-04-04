@@ -286,7 +286,7 @@ async def analizar_documento(file: UploadFile = File(...)):
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"JSON inválido: {e}")
         
-        #clean_text = raw_text.replace("```json", "").replace("```", "").strip()
+        clean_text = raw_text.replace("```json", "").replace("```", "").strip()
         #result = json.loads(clean_text)
         log.info("Veredicto: %s — Score: %s", result.get("veredicto"), result.get("score"))
         return result
