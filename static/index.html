@@ -1088,13 +1088,16 @@
                     method: "POST",
                     body: formData,
                 });
+                
+                const data = await res.json();
 
                 if (!response.ok) {
-                    const err = await response.json();
-                    throw new Error(err.detail || "Error del servidor");
+                    console.error(data);
+                    alert("Error: " + (data.detalle || "Fallo en análisis"));
+                    //throw new Error(err.detail || "Error del servidor");
                 }
 
-                const data = await response.json();
+                // const data = await response.json();
 
                 // El backend devuelve un formato ligeramente distinto.
                 // Lo normalizamos al formato que espera renderResults().
