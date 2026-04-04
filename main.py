@@ -10,6 +10,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 import fitz  # PyMuPDF
+import re
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s  %(levelname)s  %(message)s")
 log = logging.getLogger(__name__)
@@ -27,8 +28,9 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "").strip()
 MODEL = "claude-3-5-sonnet" # "claude-sonnet-4-5"
-MAX_PAGES = 20        # Aumentado a 20 páginas
+MAX_TOTAL_KB = 3500   # límite seguro (~3.5MB)
 RENDER_SCALE = 1.5    # Reducido de 2.0 a 1.5 para bajar tamaño de payload
+MAX_PAGES = 20        # Aumentado a 20 páginas
 
 
 @app.exception_handler(StarletteHTTPException)
@@ -106,11 +108,13 @@ async def root():
 
 @app.get("/health")
 async def health():
-    key = ANTHROPIC_API_KEY
+    key = bool(ANTHROPIC_API_KEY and ANTHROPIC_API_KEY.startswith("sk-ant-"))
+    modelo_ok = await validar_modelo() if key_ok else False
     key_ok = bool(key and key.startswith("sk-ant-") and len(key) > 20)
     return {
-        "status": "ok" if key_ok else "degradado",
+        "status": "ok" if key_ok and modelo_ok else "degradado",
         "modelo": MODEL,
+        "modelo_valido": modelo_ok,
         "api_key_presente": bool(key),
         "api_key_valida": key_ok,
         "api_key_prefijo": key[:10] + "..." if key else "—",
@@ -124,17 +128,28 @@ def pdf_to_images(pdf_bytes: bytes) -> tuple[list[str], int]:
     doc = fitz.open(stream=pdf_bytes, filetype="pdf")
     total_pages = min(doc.page_count, MAX_PAGES)
     images = []
+    total_kb = 0
     try:
         for i in range(total_pages):
             page = doc[i]
             mat = fitz.Matrix(RENDER_SCALE, RENDER_SCALE)
             pix = page.get_pixmap(matrix=mat)
+            
             img_bytes = pix.tobytes("jpeg")
+            kb = len(img_bytes) // 1024
+            # 🔴 CORTE INTELIGENTE
+            if total_kb + kb > MAX_TOTAL_KB:
+                log.warning("Límite de payload alcanzado en página %d", i + 1)
+                break
+
+            total_kb += kb
+                
             b64 = base64.b64encode(img_bytes).decode("utf-8")
             images.append(b64)
             log.info("Página %d/%d — %d KB", i + 1, total_pages, len(img_bytes) // 1024)
     finally:
         doc.close()
+    log.info("Payload final: %d KB en %d páginas", total_kb, len(images))
     return images, total_pages
 
 
@@ -197,7 +212,7 @@ async def analizar_documento(file: UploadFile = File(...)):
                 },
                 json={
                     "model": MODEL,
-                    "max_tokens": 2000,
+                    "max_tokens": 1200, #2000,
                     "system": SYSTEM_PROMPT,
                     "messages": [{"role": "user", "content": content_blocks}],
                 },
@@ -212,26 +227,66 @@ async def analizar_documento(file: UploadFile = File(...)):
     log.info("Anthropic respondió HTTP %d", api_response.status_code)
 
     # 6. Manejar errores de Anthropic con detalle
+    #if api_response.status_code != 200:
+    #    body = api_response.text
+    #    log.error("Anthropic error: %s", body)
+    #        raise HTTPException(
+    #            status_code=500,
+    #            detail=f"Anthropic error {api_response.status_code}: {body}"
+    #        )
+
+    #    msgs = {
+    #        401: "API key rechazada. Verifica la clave en Render → Environment.",
+    #        403: "Acceso denegado. La API key no tiene permisos suficientes.",
+    #        429: "Límite de uso alcanzado. Espera unos minutos e intenta de nuevo.",
+    #        413: "Payload demasiado grande. El documento tiene demasiadas páginas o resolución muy alta.",
+    #        500: f"Error interno de Anthropic: {body[:400]}",
+    #        529: "Anthropic está sobrecargado. Intenta de nuevo en unos minutos.",
+    #    }
+    #    detail = msgs.get(api_response.status_code, f"Error {api_response.status_code}: {body[:400]}")
+    #    raise HTTPException(status_code=500, detail=detail)
+
     if api_response.status_code != 200:
-        body = api_response.text
-        log.error("Error Anthropic %d: %s", api_response.status_code, body[:800])
-        msgs = {
-            401: "API key rechazada. Verifica la clave en Render → Environment.",
-            403: "Acceso denegado. La API key no tiene permisos suficientes.",
-            429: "Límite de uso alcanzado. Espera unos minutos e intenta de nuevo.",
-            413: "Payload demasiado grande. El documento tiene demasiadas páginas o resolución muy alta.",
-            500: f"Error interno de Anthropic: {body[:400]}",
-            529: "Anthropic está sobrecargado. Intenta de nuevo en unos minutos.",
-        }
-        detail = msgs.get(api_response.status_code, f"Error {api_response.status_code}: {body[:400]}")
-        raise HTTPException(status_code=500, detail=detail)
+        try:
+            error_json = api_response.json()
+        except:
+            error_json = api_response.text
+    
+        log.error("Anthropic error: %s", error_json)
+    
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "mensaje": "Error en Anthropic",
+                "codigo": api_response.status_code,
+                "detalle": error_json,
+            },
+        )
 
     # 7. Parsear respuesta
     try:
         data = api_response.json()
-        raw_text = "".join(block.get("text", "") for block in data.get("content", []))
-        clean_text = raw_text.replace("```json", "").replace("```", "").strip()
-        result = json.loads(clean_text)
+        if "content" not in data:
+            raise HTTPException(status_code=500, detail="Respuesta inválida de Anthropic")
+            
+        # raw_text = "".join(block.get("text", "") for block in data.get("content", []))
+        raw_text = data["content"][0]["text"]
+
+        # Extraer JSON limpio
+        match = re.search(r"\{.*\}", raw_text, re.DOTALL)
+
+        if not match:
+            raise HTTPException(status_code=500, detail="No se pudo extraer JSON del modelo")
+
+        json_str = match.group(0)
+
+        try:
+            result = json.loads(json_str)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"JSON inválido: {e}")
+        
+        #clean_text = raw_text.replace("```json", "").replace("```", "").strip()
+        #result = json.loads(clean_text)
         log.info("Veredicto: %s — Score: %s", result.get("veredicto"), result.get("score"))
         return result
     except json.JSONDecodeError:
@@ -239,3 +294,23 @@ async def analizar_documento(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=f"Respuesta no parseable del modelo: {clean_text[:300]}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error procesando respuesta: {e}")
+
+async def validar_modelo():
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            r = await client.post(
+                "https://api.anthropic.com/v1/messages",
+                headers={
+                    "x-api-key": ANTHROPIC_API_KEY,
+                    "anthropic-version": "2023-06-01",
+                    "content-type": "application/json",
+                },
+                json={
+                    "model": MODEL,
+                    "max_tokens": 10,
+                    "messages": [{"role": "user", "content": "ping"}],
+                },
+            )
+        return r.status_code == 200
+    except:
+        return False
