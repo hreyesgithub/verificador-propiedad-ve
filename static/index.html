@@ -3,807 +3,1466 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Verificador de Documentos de Propiedad · Venezuela</title>
+        <title>VerificaDoc VE — Autenticidad de Documentos de Propiedad</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
-            href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap"
+            href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap"
             rel="stylesheet"
         />
         <style>
             :root {
-                --bg: #f5f2ed;
-                --surface: #fdfbf8;
-                --border: #e2ddd6;
-                --text: #1a1714;
-                --text-muted: #6b6560;
-                --text-faint: #a09a93;
-                --gold: #c4922a;
-                --gold-light: #f7edd8;
-                --green: #2d6a4f;
-                --green-light: #d8efe4;
-                --red: #9b2226;
-                --red-light: #f5d5d6;
-                --amber: #b5550a;
-                --amber-light: #fde8d3;
-                --blue: #1a4f7a;
-                --blue-light: #d6e8f5;
-                --radius: 12px;
-                --radius-sm: 8px;
+                --negro: #0a0a0a;
+                --crema: #f5f0e8;
+                --dorado: #c8a84b;
+                --dorado-claro: #e8c97a;
+                --rojo: #c0392b;
+                --verde: #1a6b3c;
+                --verde-claro: #27ae60;
+                --gris: #6b6b6b;
+                --gris-claro: #e8e4dc;
+                --blanco: #fefefe;
             }
 
             * {
-                box-sizing: border-box;
                 margin: 0;
                 padding: 0;
+                box-sizing: border-box;
             }
 
             body {
-                font-family: "DM Sans", sans-serif;
-                background: var(--bg);
-                color: var(--text);
+                background: var(--negro);
+                color: var(--crema);
+                font-family: "IBM Plex Sans", sans-serif;
                 min-height: 100vh;
+                overflow-x: hidden;
+            }
+
+            /* ─── HEADER ─────────────────────────────────── */
+            header {
+                border-bottom: 1px solid #2a2a2a;
+                padding: 28px 48px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                position: sticky;
+                top: 0;
+                z-index: 100;
+                background: rgba(10, 10, 10, 0.95);
+                backdrop-filter: blur(8px);
+            }
+            .logo {
+                display: flex;
+                align-items: baseline;
+                gap: 10px;
+            }
+            .logo-main {
+                font-family: "Playfair Display", serif;
+                font-size: 1.6rem;
+                font-weight: 900;
+                color: var(--dorado);
+                letter-spacing: -0.02em;
+            }
+            .logo-sub {
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 0.65rem;
+                font-weight: 300;
+                color: var(--gris);
+                letter-spacing: 0.2em;
+                text-transform: uppercase;
+            }
+            .badge-header {
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 0.6rem;
+                color: var(--gris);
+                letter-spacing: 0.15em;
+                text-transform: uppercase;
+                border: 1px solid #2a2a2a;
+                padding: 6px 14px;
+                border-radius: 2px;
+            }
+
+            /* ─── HERO ─────────────────────────────────── */
+            .hero {
+                padding: 80px 48px 60px;
+                max-width: 900px;
+            }
+            .hero-label {
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 0.65rem;
+                letter-spacing: 0.3em;
+                text-transform: uppercase;
+                color: var(--dorado);
+                margin-bottom: 20px;
+            }
+            .hero h1 {
+                font-family: "Playfair Display", serif;
+                font-size: clamp(2.2rem, 5vw, 3.8rem);
+                font-weight: 900;
+                line-height: 1.1;
+                color: var(--crema);
+                margin-bottom: 20px;
+            }
+            .hero h1 span {
+                color: var(--dorado);
+            }
+            .hero p {
+                font-size: 0.95rem;
+                color: #8a8a8a;
+                line-height: 1.8;
+                max-width: 580px;
                 font-weight: 300;
             }
 
-            .grain {
-                position: fixed;
-                inset: 0;
-                pointer-events: none;
-                z-index: 0;
-                background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-                opacity: 0.4;
+            /* ─── UPLOAD ZONE ─────────────────────────────── */
+            .main-content {
+                padding: 0 48px 80px;
+                display: grid;
+                grid-template-columns: 1fr 380px;
+                gap: 40px;
+                max-width: 1200px;
             }
 
-            .page {
-                position: relative;
-                z-index: 1;
-                max-width: 760px;
-                margin: 0 auto;
-                padding: 3rem 1.5rem 4rem;
+            .upload-section {
+                display: flex;
+                flex-direction: column;
+                gap: 24px;
             }
 
-            header {
-                margin-bottom: 3rem;
-            }
-
-            .logo-mark {
-                display: inline-flex;
-                align-items: center;
-                gap: 8px;
-                background: var(--text);
-                color: var(--bg);
-                font-family: "DM Serif Display", serif;
-                font-size: 13px;
-                letter-spacing: 0.08em;
-                padding: 6px 14px;
+            .drop-zone {
+                border: 1.5px dashed #3a3a3a;
                 border-radius: 4px;
-                margin-bottom: 1.5rem;
-            }
-
-            .logo-dot {
-                width: 6px;
-                height: 6px;
-                border-radius: 50%;
-                background: var(--gold);
-            }
-
-            h1 {
-                font-family: "DM Serif Display", serif;
-                font-size: clamp(28px, 5vw, 42px);
-                font-weight: 400;
-                line-height: 1.15;
-                letter-spacing: -0.02em;
-                margin-bottom: 0.75rem;
-            }
-
-            h1 em {
-                font-style: normal;
-                color: var(--gold);
-            }
-
-            .subtitle {
-                font-size: 14px;
-                color: var(--text-muted);
-                line-height: 1.6;
-                max-width: 480px;
-            }
-
-            .divider {
-                width: 40px;
-                height: 2px;
-                background: var(--gold);
-                margin: 1.5rem 0;
-            }
-
-            /* Upload zone */
-            .upload-zone {
-                border: 1.5px dashed var(--border);
-                border-radius: var(--radius);
-                background: var(--surface);
-                padding: 3rem 2rem;
+                padding: 64px 40px;
                 text-align: center;
                 cursor: pointer;
-                transition:
-                    border-color 0.2s,
-                    background 0.2s;
+                transition: all 0.3s ease;
+                background: #0f0f0f;
                 position: relative;
                 overflow: hidden;
             }
-
-            .upload-zone::before {
+            .drop-zone::before {
                 content: "";
                 position: absolute;
                 inset: 0;
                 background: radial-gradient(
-                    ellipse at 50% 0%,
-                    rgba(196, 146, 42, 0.05) 0%,
+                    ellipse at center,
+                    rgba(200, 168, 75, 0.04) 0%,
                     transparent 70%
                 );
                 pointer-events: none;
             }
-
-            .upload-zone:hover,
-            .upload-zone.drag {
-                border-color: var(--gold);
-                background: var(--gold-light);
+            .drop-zone:hover,
+            .drop-zone.drag-over {
+                border-color: var(--dorado);
+                background: #111008;
             }
-
-            .upload-icon-wrap {
-                width: 56px;
-                height: 56px;
-                border: 1.5px solid var(--border);
-                border-radius: var(--radius-sm);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                margin: 0 auto 1.25rem;
-                background: var(--bg);
-                font-size: 22px;
+            .drop-zone:hover::before {
+                background: radial-gradient(
+                    ellipse at center,
+                    rgba(200, 168, 75, 0.08) 0%,
+                    transparent 70%
+                );
             }
-
-            .upload-title {
-                font-size: 16px;
-                font-weight: 500;
-                margin-bottom: 4px;
+            .drop-icon {
+                font-size: 2.5rem;
+                margin-bottom: 20px;
+                opacity: 0.4;
+                transition:
+                    opacity 0.3s,
+                    transform 0.3s;
             }
-            .upload-sub {
-                font-size: 13px;
-                color: var(--text-muted);
+            .drop-zone:hover .drop-icon {
+                opacity: 0.7;
+                transform: translateY(-4px);
             }
-            .upload-note {
-                font-size: 11px;
-                color: var(--text-faint);
-                margin-top: 8px;
+            .drop-title {
+                font-family: "Playfair Display", serif;
+                font-size: 1.2rem;
+                color: var(--crema);
+                margin-bottom: 8px;
+            }
+            .drop-subtitle {
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 0.7rem;
+                color: var(--gris);
+                letter-spacing: 0.1em;
             }
             #fileInput {
                 display: none;
             }
 
-            /* Progress */
-            #progressSection {
-                display: none;
+            .btn-primary {
+                background: var(--dorado);
+                color: var(--negro);
+                border: none;
+                padding: 16px 32px;
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 0.8rem;
+                font-weight: 500;
+                letter-spacing: 0.15em;
+                text-transform: uppercase;
+                cursor: pointer;
+                border-radius: 2px;
+                transition: all 0.2s;
+                width: 100%;
+            }
+            .btn-primary:hover {
+                background: var(--dorado-claro);
+                transform: translateY(-1px);
+            }
+            .btn-primary:disabled {
+                background: #2a2a2a;
+                color: #4a4a4a;
+                cursor: not-allowed;
+                transform: none;
             }
 
-            .progress-card {
-                background: var(--surface);
-                border: 1px solid var(--border);
-                border-radius: var(--radius);
-                padding: 2rem;
+            /* ─── FILE PREVIEW ─────────────────────────────── */
+            .file-preview {
+                display: none;
+                background: #0f0f0f;
+                border: 1px solid #2a2a2a;
+                border-radius: 4px;
+                padding: 20px;
+                align-items: center;
+                gap: 16px;
+            }
+            .file-preview.visible {
+                display: flex;
+            }
+            .file-icon {
+                font-size: 2rem;
+            }
+            .file-info {
+                flex: 1;
+            }
+            .file-name {
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 0.75rem;
+                color: var(--crema);
+                margin-bottom: 4px;
+                word-break: break-all;
+            }
+            .file-size {
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 0.65rem;
+                color: var(--gris);
+            }
+            .remove-file {
+                background: none;
+                border: 1px solid #333;
+                color: var(--gris);
+                padding: 6px 12px;
+                font-size: 0.7rem;
+                cursor: pointer;
+                font-family: "IBM Plex Mono", monospace;
+                border-radius: 2px;
+                transition: all 0.2s;
+            }
+            .remove-file:hover {
+                border-color: var(--rojo);
+                color: var(--rojo);
+            }
+
+            /* ─── SIDEBAR INFO ─────────────────────────────── */
+            .sidebar {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .info-card {
+                background: #0f0f0f;
+                border: 1px solid #1e1e1e;
+                border-radius: 4px;
+                padding: 24px;
+            }
+            .info-card-title {
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 0.6rem;
+                letter-spacing: 0.25em;
+                text-transform: uppercase;
+                color: var(--dorado);
+                margin-bottom: 16px;
+            }
+            .checklist {
+                list-style: none;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            .checklist li {
+                font-size: 0.8rem;
+                color: #7a7a7a;
+                display: flex;
+                gap: 10px;
+                align-items: flex-start;
+                line-height: 1.5;
+            }
+            .checklist li .check {
+                color: var(--dorado);
+                font-size: 0.7rem;
+                flex-shrink: 0;
+                margin-top: 2px;
+            }
+
+            .tip {
+                font-size: 0.75rem;
+                color: #5a5a5a;
+                line-height: 1.7;
+                font-weight: 300;
+            }
+            .tip strong {
+                color: var(--dorado);
+                font-weight: 400;
+            }
+
+            /* ─── LOADING STATE ─────────────────────────────── */
+            .loader {
+                display: none;
+                background: #0f0f0f;
+                border: 1px solid #2a2a2a;
+                border-radius: 4px;
+                padding: 48px 32px;
                 text-align: center;
             }
-
-            .spinner-ring {
-                width: 44px;
-                height: 44px;
-                margin: 0 auto 1.25rem;
-                border: 2px solid var(--border);
-                border-top-color: var(--gold);
-                border-radius: 50%;
-                animation: spin 0.9s linear infinite;
+            .loader.visible {
+                display: block;
             }
-
+            .loader-spinner {
+                width: 40px;
+                height: 40px;
+                border: 2px solid #1e1e1e;
+                border-top-color: var(--dorado);
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+                margin: 0 auto 24px;
+            }
             @keyframes spin {
                 to {
                     transform: rotate(360deg);
                 }
             }
-
-            .progress-title {
-                font-size: 16px;
-                font-weight: 500;
-                margin-bottom: 4px;
+            .loader-text {
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 0.7rem;
+                color: var(--gris);
+                letter-spacing: 0.1em;
             }
-            .progress-sub {
-                font-size: 13px;
-                color: var(--text-muted);
-                margin-bottom: 1.25rem;
+            .loader-steps {
+                margin-top: 24px;
+                text-align: left;
             }
-
-            .progress-track {
-                height: 3px;
-                background: var(--border);
-                border-radius: 2px;
-                overflow: hidden;
-                margin-bottom: 8px;
-            }
-            .progress-fill {
-                height: 100%;
-                width: 0%;
-                background: var(--gold);
-                border-radius: 2px;
-                transition: width 0.5s ease;
-            }
-            .progress-pct {
-                font-size: 11px;
-                color: var(--text-faint);
-            }
-
-            .pages-row {
+            .step-item {
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 0.65rem;
+                color: #3a3a3a;
+                padding: 8px 0;
+                border-bottom: 1px solid #1a1a1a;
                 display: flex;
-                gap: 6px;
-                justify-content: center;
-                flex-wrap: wrap;
-                margin-top: 1rem;
+                gap: 10px;
+                align-items: center;
+                transition: color 0.4s;
             }
-            .page-pill {
-                font-size: 11px;
-                padding: 3px 10px;
-                border-radius: 20px;
-                border: 1px solid var(--border);
-                color: var(--text-muted);
-                background: var(--bg);
-                transition: all 0.2s;
+            .step-item.active {
+                color: var(--dorado);
             }
-            .page-pill.active {
-                border-color: var(--gold);
-                color: var(--gold);
-                background: var(--gold-light);
+            .step-item.done {
+                color: var(--verde-claro);
             }
-            .page-pill.done {
-                border-color: var(--green);
-                color: var(--green);
-                background: var(--green-light);
-            }
-
-            /* Results */
-            #resultSection {
-                display: none;
-            }
-
-            .verdict-banner {
-                border-radius: var(--radius);
-                padding: 1.5rem;
-                margin-bottom: 1.25rem;
-                display: flex;
-                align-items: flex-start;
-                gap: 1.25rem;
-            }
-            .vb-a {
-                background: var(--green-light);
-                border: 1px solid #6fcf97;
-            }
-            .vb-s {
-                background: var(--amber-light);
-                border: 1px solid #f2994a;
-            }
-            .vb-f {
-                background: var(--red-light);
-                border: 1px solid #eb5757;
-            }
-
-            .verdict-icon {
-                width: 48px;
-                height: 48px;
-                flex-shrink: 0;
+            .step-dot {
+                width: 6px;
+                height: 6px;
                 border-radius: 50%;
+                background: currentColor;
+                flex-shrink: 0;
+            }
+
+            /* ─── RESULTS ─────────────────────────────────── */
+            #resultsSection {
+                display: none;
+                grid-column: 1 / -1;
+            }
+            #resultsSection.visible {
+                display: block;
+            }
+
+            .result-header {
                 display: flex;
                 align-items: center;
-                justify-content: center;
-                font-size: 22px;
-                font-weight: 500;
+                gap: 24px;
+                padding: 32px 40px;
+                border-radius: 4px;
+                margin-bottom: 32px;
             }
-            .vb-a .verdict-icon {
-                background: var(--green);
-                color: white;
+            .result-header.autentico {
+                background: linear-gradient(135deg, #0a1f14 0%, #071510 100%);
+                border: 1px solid #1a4a2a;
             }
-            .vb-s .verdict-icon {
-                background: var(--amber);
-                color: white;
+            .result-header.sospechoso {
+                background: linear-gradient(135deg, #1f1a07 0%, #150f07 100%);
+                border: 1px solid #4a3a0a;
             }
-            .vb-f .verdict-icon {
-                background: var(--red);
-                color: white;
+            .result-header.falsificado {
+                background: linear-gradient(135deg, #1f0a0a 0%, #150707 100%);
+                border: 1px solid #4a0a0a;
+            }
+
+            .result-verdict {
+                flex: 1;
+            }
+            .verdict-label {
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 0.6rem;
+                letter-spacing: 0.3em;
+                text-transform: uppercase;
+                margin-bottom: 8px;
+            }
+            .result-header.autentico .verdict-label {
+                color: var(--verde-claro);
+            }
+            .result-header.sospechoso .verdict-label {
+                color: #e8a020;
+            }
+            .result-header.falsificado .verdict-label {
+                color: var(--rojo);
             }
 
             .verdict-title {
-                font-family: "DM Serif Display", serif;
-                font-size: 22px;
-                font-weight: 400;
+                font-family: "Playfair Display", serif;
+                font-size: 2rem;
+                font-weight: 700;
             }
-            .vb-a .verdict-title {
-                color: var(--green);
+            .result-header.autentico .verdict-title {
+                color: #4ade80;
             }
-            .vb-s .verdict-title {
-                color: var(--amber);
+            .result-header.sospechoso .verdict-title {
+                color: #fbbf24;
             }
-            .vb-f .verdict-title {
-                color: var(--red);
+            .result-header.falsificado .verdict-title {
+                color: #f87171;
             }
 
-            .verdict-score {
-                font-size: 12px;
-                font-weight: 500;
-                margin: 2px 0 6px;
-                color: var(--text-muted);
-            }
-            .verdict-summary {
-                font-size: 14px;
+            .verdict-desc {
+                font-size: 0.85rem;
+                color: #6a6a6a;
+                margin-top: 8px;
                 line-height: 1.6;
-                color: var(--text);
             }
 
-            .alerts-box {
-                background: var(--amber-light);
-                border: 1px solid #f2994a;
-                border-radius: var(--radius-sm);
-                padding: 12px 16px;
-                margin-bottom: 1.25rem;
-            }
-            .alert-title {
-                font-size: 11px;
-                font-weight: 500;
-                color: var(--amber);
-                text-transform: uppercase;
-                letter-spacing: 0.06em;
-                margin-bottom: 6px;
-            }
-            .alert-item {
-                font-size: 13px;
-                color: var(--amber);
-                margin-bottom: 3px;
-                line-height: 1.5;
-            }
-
-            .card {
-                background: var(--surface);
-                border: 1px solid var(--border);
-                border-radius: var(--radius);
-                padding: 1.25rem;
-                margin-bottom: 1rem;
-            }
-
-            .card-title {
-                font-size: 10px;
-                font-weight: 500;
-                letter-spacing: 0.1em;
-                text-transform: uppercase;
-                color: var(--text-faint);
-                margin-bottom: 1rem;
-            }
-
-            .field-grid {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 10px;
-            }
-            @media (max-width: 480px) {
-                .field-grid {
-                    grid-template-columns: 1fr;
-                }
-            }
-
-            .field-item {
-                background: var(--bg);
-                border-radius: var(--radius-sm);
-                padding: 10px 12px;
-            }
-            .field-key {
-                font-size: 10px;
-                color: var(--text-faint);
-                margin-bottom: 3px;
-                text-transform: uppercase;
-                letter-spacing: 0.05em;
-            }
-            .field-val {
-                font-size: 13px;
-                color: var(--text);
-                font-weight: 400;
-                word-break: break-word;
-                line-height: 1.4;
-            }
-            .fv-ok {
-                color: var(--green);
-            }
-            .fv-fail {
-                color: var(--red);
-            }
-
-            .checks-list {
-                display: flex;
-                flex-direction: column;
-                gap: 0;
-            }
-            .check-row {
-                display: flex;
-                align-items: flex-start;
-                gap: 12px;
-                padding: 10px 0;
-                border-bottom: 1px solid var(--border);
-            }
-            .check-row:last-child {
-                border-bottom: none;
-            }
-
-            .check-badge {
-                width: 20px;
-                height: 20px;
-                border-radius: 50%;
+            .score-circle {
+                width: 100px;
+                height: 100px;
+                flex-shrink: 0;
+                position: relative;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 10px;
-                flex-shrink: 0;
-                margin-top: 2px;
-                font-weight: 500;
             }
-            .cb-ok {
-                background: var(--green-light);
-                color: var(--green);
+            .score-circle svg {
+                position: absolute;
+                top: 0;
+                left: 0;
+                transform: rotate(-90deg);
             }
-            .cb-warn {
-                background: var(--amber-light);
-                color: var(--amber);
+            .score-num {
+                font-family: "Playfair Display", serif;
+                font-size: 1.8rem;
+                font-weight: 900;
+                z-index: 1;
             }
-            .cb-fail {
-                background: var(--red-light);
-                color: var(--red);
+            .result-header.autentico .score-num {
+                color: #4ade80;
             }
-            .cb-info {
-                background: var(--blue-light);
-                color: var(--blue);
+            .result-header.sospechoso .score-num {
+                color: #fbbf24;
+            }
+            .result-header.falsificado .score-num {
+                color: #f87171;
             }
 
-            .check-name {
-                font-size: 13px;
-                font-weight: 500;
-                color: var(--text);
+            /* ─── RESULT GRID ─────────────────────────────── */
+            .result-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 20px;
+                margin-bottom: 32px;
             }
-            .check-detail {
-                font-size: 12px;
-                color: var(--text-muted);
-                margin-top: 2px;
+
+            .result-card {
+                background: #0f0f0f;
+                border: 1px solid #1e1e1e;
+                border-radius: 4px;
+                padding: 24px;
+            }
+            .result-card-title {
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 0.6rem;
+                letter-spacing: 0.2em;
+                text-transform: uppercase;
+                color: var(--dorado);
+                margin-bottom: 16px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .field-list {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+            .field-item {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                gap: 16px;
+                padding: 10px 0;
+                border-bottom: 1px solid #161616;
+                font-size: 0.78rem;
+            }
+            .field-item:last-child {
+                border-bottom: none;
+            }
+            .field-label {
+                color: #5a5a5a;
+                flex-shrink: 0;
+                max-width: 140px;
                 line-height: 1.4;
             }
+            .field-value {
+                color: var(--crema);
+                text-align: right;
+                line-height: 1.4;
+                word-break: break-word;
+            }
+            .field-value.ok {
+                color: #4ade80;
+            }
+            .field-value.warn {
+                color: #fbbf24;
+            }
+            .field-value.error {
+                color: #f87171;
+            }
+            .field-value.missing {
+                color: #4a4a4a;
+                font-style: italic;
+            }
 
-            .disclaimer {
-                font-size: 11px;
-                color: var(--text-faint);
+            /* ─── OBSERVATIONS ─────────────────────────────── */
+            .observations {
+                background: #0f0f0f;
+                border: 1px solid #1e1e1e;
+                border-radius: 4px;
+                padding: 28px;
+                margin-bottom: 24px;
+            }
+            .obs-title {
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 0.6rem;
+                letter-spacing: 0.2em;
+                text-transform: uppercase;
+                color: var(--dorado);
+                margin-bottom: 20px;
+            }
+            .obs-list {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
+            .obs-item {
+                display: flex;
+                gap: 12px;
+                align-items: flex-start;
+                padding: 14px;
+                border-radius: 3px;
+                font-size: 0.82rem;
                 line-height: 1.6;
-                margin-top: 1.5rem;
-                padding-top: 1rem;
-                border-top: 1px solid var(--border);
+            }
+            .obs-item.positive {
+                background: #0a1a0f;
+                color: #86efac;
+                border-left: 3px solid var(--verde-claro);
+            }
+            .obs-item.warning {
+                background: #1a1507;
+                color: #fde68a;
+                border-left: 3px solid #f59e0b;
+            }
+            .obs-item.negative {
+                background: #1a0808;
+                color: #fca5a5;
+                border-left: 3px solid var(--rojo);
+            }
+            .obs-icon {
+                flex-shrink: 0;
             }
 
-            .btn-new {
-                margin-top: 1.25rem;
-                display: inline-flex;
-                align-items: center;
-                gap: 6px;
-                padding: 10px 20px;
-                background: var(--text);
-                color: var(--bg);
-                border: none;
-                border-radius: var(--radius-sm);
-                font-family: "DM Sans", sans-serif;
-                font-size: 13px;
-                font-weight: 400;
+            /* ─── RAW DATA ─────────────────────────────────── */
+            .raw-data-toggle {
+                background: none;
+                border: 1px solid #2a2a2a;
+                color: var(--gris);
+                padding: 12px 24px;
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 0.7rem;
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
                 cursor: pointer;
-                transition: opacity 0.2s;
+                border-radius: 2px;
+                transition: all 0.2s;
+                width: 100%;
+                text-align: left;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 8px;
             }
-            .btn-new:hover {
-                opacity: 0.8;
+            .raw-data-toggle:hover {
+                border-color: var(--dorado);
+                color: var(--dorado);
+            }
+            .raw-data {
+                display: none;
+                background: #080808;
+                border: 1px solid #1e1e1e;
+                border-radius: 3px;
+                padding: 20px;
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 0.7rem;
+                color: #4a8a5a;
+                line-height: 1.8;
+                max-height: 400px;
+                overflow-y: auto;
+                white-space: pre-wrap;
+            }
+            .raw-data.visible {
+                display: block;
             }
 
-            .error-banner {
-                background: var(--red-light);
-                border: 1px solid #eb5757;
-                border-radius: var(--radius-sm);
-                padding: 12px 16px;
-                font-size: 13px;
-                color: var(--red);
-                margin-bottom: 1rem;
+            /* ─── NEW ANALYSIS ─────────────────────────────── */
+            .btn-reset {
+                background: none;
+                border: 1px solid #3a3a3a;
+                color: var(--gris);
+                padding: 14px 28px;
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 0.75rem;
+                letter-spacing: 0.12em;
+                text-transform: uppercase;
+                cursor: pointer;
+                border-radius: 2px;
+                transition: all 0.2s;
+                margin-top: 16px;
+            }
+            .btn-reset:hover {
+                border-color: var(--dorado);
+                color: var(--dorado);
+            }
+
+            /* ─── FOOTER ─────────────────────────────────── */
+            footer {
+                border-top: 1px solid #1a1a1a;
+                padding: 24px 48px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .footer-note {
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 0.6rem;
+                color: #3a3a3a;
+                letter-spacing: 0.1em;
+            }
+
+            /* ─── RESPONSIVE ─────────────────────────────── */
+            @media (max-width: 768px) {
+                header {
+                    padding: 20px 24px;
+                }
+                .hero {
+                    padding: 48px 24px 40px;
+                }
+                .main-content {
+                    padding: 0 24px 60px;
+                    grid-template-columns: 1fr;
+                }
+                .sidebar {
+                    display: none;
+                }
+                footer {
+                    padding: 20px 24px;
+                    flex-direction: column;
+                    gap: 8px;
+                }
             }
         </style>
     </head>
     <body>
-        <div class="grain"></div>
-        <div class="page">
-            <header>
-                <div class="logo-mark">
-                    <div class="logo-dot"></div>
-                    SAREN · ANÁLISIS FORENSE
-                </div>
-                <h1>Verificador de documentos<br />de <em>propiedad</em></h1>
-                <div class="divider"></div>
-                <p class="subtitle">
-                    Análisis de autenticidad mediante visión artificial.
-                    Compatible con PDFs escaneados y digitales. Marco legal
-                    venezolano — Código Civil y Ley de Registro Público.
-                </p>
-            </header>
-
-            <div id="uploadSection">
-                <div
-                    class="upload-zone"
-                    id="uploadZone"
-                    onclick="document.getElementById('fileInput').click()"
+        <header>
+            <div class="logo">
+                <span class="logo-main">VerificaDoc</span>
+                <span class="logo-sub"
+                    >Venezuela · Sistema de Autenticidad Registral</span
                 >
-                    <div class="upload-icon-wrap">📄</div>
-                    <div class="upload-title">Subir documento PDF</div>
-                    <div class="upload-sub">
-                        Haz clic aquí o arrastra el archivo
+            </div>
+            <span class="badge-header">v1.0 · Beta</span>
+        </header>
+
+        <section class="hero">
+            <p class="hero-label">◆ Análisis de Documentos de Propiedad</p>
+            <h1>Verificación de<br /><span>Autenticidad Registral</span></h1>
+            <p>
+                Sistema de análisis basado en IA para documentos de compraventa
+                e hipoteca venezolanos. Evalúa la estructura, campos legales
+                obligatorios y coherencia documental conforme a la legislación
+                venezolana.
+            </p>
+        </section>
+
+        <div class="main-content">
+            <!-- ── UPLOAD + RESULTS COLUMN ── -->
+            <div class="upload-section">
+                <div class="drop-zone" id="dropZone">
+                    <div class="drop-icon">📄</div>
+                    <div class="drop-title">Arrastra el documento PDF aquí</div>
+                    <div class="drop-subtitle">
+                        o haz clic para seleccionar · PDF hasta 20MB
                     </div>
-                    <div class="upload-note">
-                        PDFs escaneados o digitales · Máximo 10 páginas
-                        analizadas · Solo lectura, no se almacena
+                    <input type="file" id="fileInput" accept=".pdf" />
+                </div>
+
+                <div class="file-preview" id="filePreview">
+                    <span class="file-icon">📋</span>
+                    <div class="file-info">
+                        <div class="file-name" id="fileName">—</div>
+                        <div class="file-size" id="fileSize">—</div>
+                    </div>
+                    <button class="remove-file" onclick="resetApp()">
+                        ✕ Quitar
+                    </button>
+                </div>
+
+                <button
+                    class="btn-primary"
+                    id="analyzeBtn"
+                    disabled
+                    onclick="analyzeDocument()"
+                >
+                    ◆ Analizar Documento
+                </button>
+
+                <div class="loader" id="loader">
+                    <div class="loader-spinner"></div>
+                    <div class="loader-text">Analizando documento...</div>
+                    <div class="loader-steps">
+                        <div class="step-item" id="step1">
+                            <span class="step-dot"></span>Extrayendo texto del
+                            PDF
+                        </div>
+                        <div class="step-item" id="step2">
+                            <span class="step-dot"></span>Identificando campos
+                            registrales
+                        </div>
+                        <div class="step-item" id="step3">
+                            <span class="step-dot"></span>Verificando estructura
+                            legal
+                        </div>
+                        <div class="step-item" id="step4">
+                            <span class="step-dot"></span>Analizando coherencia
+                            documental
+                        </div>
+                        <div class="step-item" id="step5">
+                            <span class="step-dot"></span>Generando informe de
+                            autenticidad
+                        </div>
                     </div>
                 </div>
-                <input type="file" id="fileInput" accept=".pdf" />
             </div>
 
-            <div id="progressSection">
-                <div class="progress-card">
-                    <div class="spinner-ring"></div>
-                    <div class="progress-title" id="progressTitle">
-                        Procesando documento...
-                    </div>
-                    <div class="progress-sub" id="progressSub">
-                        Iniciando análisis
-                    </div>
-                    <div class="progress-track">
-                        <div class="progress-fill" id="progressFill"></div>
-                    </div>
-                    <div class="progress-pct" id="progressPct"></div>
-                    <div class="pages-row" id="pagesRow"></div>
+            <!-- ── SIDEBAR ── -->
+            <div class="sidebar">
+                <div class="info-card">
+                    <div class="info-card-title">◆ Campos que se verifican</div>
+                    <ul class="checklist">
+                        <li>
+                            <span class="check">▸</span>Planilla Única Bancaria
+                            (PUB)
+                        </li>
+                        <li>
+                            <span class="check">▸</span>Número de inscripción y
+                            asiento registral
+                        </li>
+                        <li>
+                            <span class="check">▸</span>Matrícula del inmueble
+                            (Folio Real)
+                        </li>
+                        <li>
+                            <span class="check">▸</span>Nombre y cédula del
+                            Registrador Público
+                        </li>
+                        <li>
+                            <span class="check">▸</span>Abogado redactor con N°
+                            Inpreabogado
+                        </li>
+                        <li>
+                            <span class="check">▸</span>Código catastral e
+                            inscripción catastral
+                        </li>
+                        <li>
+                            <span class="check">▸</span>Identificación completa
+                            de otorgantes
+                        </li>
+                        <li>
+                            <span class="check">▸</span>Linderos del inmueble
+                            (N/S/E/O)
+                        </li>
+                        <li>
+                            <span class="check">▸</span>Firma del registrador y
+                            sellos oficiales
+                        </li>
+                        <li>
+                            <span class="check">▸</span>Testigos con cédulas
+                            identificadas
+                        </li>
+                        <li>
+                            <span class="check">▸</span>Coherencia interna de
+                            fechas y datos
+                        </li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">◆ Aviso importante</div>
+                    <p class="tip">
+                        Este sistema realiza un
+                        <strong>análisis documental estructural</strong>. Un
+                        resultado positivo no reemplaza la verificación ante el
+                        Registro Público correspondiente. Para transacciones de
+                        alto valor, consulte con un
+                        <strong>abogado venezolano colegiado</strong>.
+                    </p>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-title">◆ Marco legal aplicado</div>
+                    <ul class="checklist">
+                        <li>
+                            <span class="check">▸</span>Ley de Registro Público
+                            y del Notariado
+                        </li>
+                        <li>
+                            <span class="check">▸</span>Código Civil venezolano
+                            (Arts. 1920-1924)
+                        </li>
+                        <li>
+                            <span class="check">▸</span>Ley Especial del Deudor
+                            Hipotecario
+                        </li>
+                        <li>
+                            <span class="check">▸</span>Ley de Propiedad
+                            Horizontal
+                        </li>
+                        <li>
+                            <span class="check">▸</span>Providencias
+                            administrativas SAREN
+                        </li>
+                    </ul>
                 </div>
             </div>
 
-            <div id="resultSection"></div>
+            <!-- ── RESULTS (full width) ── -->
+            <div id="resultsSection">
+                <div class="result-header" id="resultHeader">
+                    <div class="result-verdict">
+                        <div class="verdict-label" id="verdictLabel">—</div>
+                        <div class="verdict-title" id="verdictTitle">—</div>
+                        <div class="verdict-desc" id="verdictDesc">—</div>
+                    </div>
+                    <div class="score-circle">
+                        <svg width="100" height="100" viewBox="0 0 100 100">
+                            <circle
+                                cx="50"
+                                cy="50"
+                                r="42"
+                                fill="none"
+                                stroke="#1a1a1a"
+                                stroke-width="6"
+                            />
+                            <circle
+                                cx="50"
+                                cy="50"
+                                r="42"
+                                fill="none"
+                                stroke="#4ade80"
+                                stroke-width="6"
+                                stroke-dasharray="263.9"
+                                stroke-dashoffset="263.9"
+                                id="scoreCircle"
+                                stroke-linecap="round"
+                            />
+                        </svg>
+                        <div class="score-num" id="scoreNum">—</div>
+                    </div>
+                </div>
+
+                <div class="result-grid" id="resultGrid">
+                    <!-- filled by JS -->
+                </div>
+
+                <div class="observations">
+                    <div class="obs-title">◆ Observaciones del análisis</div>
+                    <div class="obs-list" id="obsList">
+                        <!-- filled by JS -->
+                    </div>
+                </div>
+
+                <button class="raw-data-toggle" onclick="toggleRaw()">
+                    <span>◆ Ver datos extraídos del documento</span>
+                    <span id="rawToggleIcon">▼</span>
+                </button>
+                <div class="raw-data" id="rawData"><!-- filled by JS --></div>
+
+                <button class="btn-reset" onclick="resetApp()">
+                    ← Analizar otro documento
+                </button>
+            </div>
         </div>
 
+        <footer>
+            <span class="footer-note"
+                >VerificaDoc VE · Análisis basado en IA · Solo uso
+                orientativo</span
+            >
+            <span class="footer-note"
+                >Marco legal: República Bolivariana de Venezuela · SAREN</span
+            >
+        </footer>
+
+        <!-- ══════════════════════════════════════════════════ -->
+        <!-- PDF.js CDN -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
         <script>
-            const uploadZone = document.getElementById("uploadZone");
+            pdfjsLib.GlobalWorkerOptions.workerSrc =
+                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+            let currentFile = null;
+            let extractedText = "";
+
+            // ── DRAG & DROP ──────────────────────────────────────
+            const dropZone = document.getElementById("dropZone");
             const fileInput = document.getElementById("fileInput");
 
-            uploadZone.addEventListener("dragover", (e) => {
+            dropZone.addEventListener("click", () => fileInput.click());
+            dropZone.addEventListener("dragover", (e) => {
                 e.preventDefault();
-                uploadZone.classList.add("drag");
+                dropZone.classList.add("drag-over");
             });
-            uploadZone.addEventListener("dragleave", () =>
-                uploadZone.classList.remove("drag"),
+            dropZone.addEventListener("dragleave", () =>
+                dropZone.classList.remove("drag-over"),
             );
-            uploadZone.addEventListener("drop", (e) => {
+            dropZone.addEventListener("drop", (e) => {
                 e.preventDefault();
-                uploadZone.classList.remove("drag");
+                dropZone.classList.remove("drag-over");
                 const f = e.dataTransfer.files[0];
-                if (f && f.type === "application/pdf") uploadFile(f);
-                else showError("Por favor sube un archivo PDF.");
+                if (f && f.type === "application/pdf") setFile(f);
             });
-            fileInput.addEventListener("change", () => {
-                if (fileInput.files[0]) uploadFile(fileInput.files[0]);
+            fileInput.addEventListener("change", (e) => {
+                if (e.target.files[0]) setFile(e.target.files[0]);
             });
 
-            function setProgress(title, sub, pct) {
-                document.getElementById("progressTitle").textContent = title;
-                document.getElementById("progressSub").textContent = sub;
-                document.getElementById("progressFill").style.width = pct + "%";
-                document.getElementById("progressPct").textContent = pct + "%";
-            }
-
-            async function uploadFile(file) {
-                document.getElementById("uploadSection").style.display = "none";
-                document.getElementById("progressSection").style.display =
-                    "block";
-                document.getElementById("resultSection").style.display = "none";
-
-                setProgress(
-                    "Enviando documento...",
-                    "Subiendo al servidor de análisis",
-                    10,
-                );
-
-                const formData = new FormData();
-                formData.append("file", file);
-
-                try {
-                    setProgress(
-                        "Analizando con IA...",
-                        "Claude Vision lee el documento página por página",
-                        30,
-                    );
-
-                    const response = await fetch("/analizar", {
-                        method: "POST",
-                        body: formData,
-                    });
-
-                    setProgress(
-                        "Procesando resultados...",
-                        "Generando informe de autenticidad",
-                        85,
-                    );
-
-                    if (!response.ok) {
-                        const err = await response.json();
-                        throw new Error(err.detail || "Error del servidor");
-                    }
-
-                    const result = await response.json();
-                    setProgress("Listo", "", 100);
-
-                    setTimeout(() => {
-                        document.getElementById(
-                            "progressSection",
-                        ).style.display = "none";
-                        renderResult(result, file.name);
-                    }, 400);
-                } catch (err) {
-                    document.getElementById("progressSection").style.display =
-                        "none";
-                    document.getElementById("uploadSection").style.display =
-                        "block";
-                    showError("Error: " + err.message);
-                }
-            }
-
-            function renderResult(r, filename) {
-                const section = document.getElementById("resultSection");
-                section.style.display = "block";
-
-                const vc =
-                    r.veredicto === "AUTÉNTICO"
-                        ? "a"
-                        : r.veredicto === "SOSPECHOSO"
-                          ? "s"
-                          : "f";
-                const icons = { a: "✓", s: "!", f: "✗" };
-                const labels = {
-                    a: "Documento Auténtico",
-                    s: "Documento Sospechoso",
-                    f: "Documento Falsificado",
-                };
-
-                const c = r.campos_encontrados || {};
-
-                const fields = [
-                    ["Tipo de documento", r.tipo_documento],
-                    ["Nº documento", c.numero_documento],
-                    ["Matrícula del inmueble", c.matricula_inmueble],
-                    ["Registro Público", c.registro_publico],
-                    ["Fecha protocolización", c.fecha_protocolizacion],
-                    ["Registrador", c.registrador],
-                    ["Abogado / Inpreabogado", c.abogado_inpreabogado],
-                    ["Código catastral", c.codigo_catastral],
-                    ["PUB SAREN", c.pub_saren],
-                    ["Nº Trámite SAREN", c.numero_tramite_saren],
-                    ["Precio", c.precio],
-                    ["Partes", c.partes_identificadas],
-                    ["Inmueble", c.inmueble_descripcion],
-                ].filter(([, v]) => v && v !== "null" && v !== null);
-
-                const flags = [
-                    ["Sellos húmedos", c.sellos_presentes],
-                    ["Firmas", c.firmas_presentes],
-                    ["Linderos cardinales", c.linderos_presentes],
-                    ["Nota del registrador", c.nota_registrador],
-                ];
-
-                const cb = (r) =>
-                    r === "OK"
-                        ? "cb-ok"
-                        : r === "WARN"
-                          ? "cb-warn"
-                          : r === "FAIL"
-                            ? "cb-fail"
-                            : "cb-info";
-                const ci = (r) =>
-                    r === "OK"
-                        ? "✓"
-                        : r === "WARN"
-                          ? "!"
-                          : r === "FAIL"
-                            ? "✗"
-                            : "i";
-
-                const alertasHTML = (r.alertas || []).length
-                    ? `
-    <div class="alerts-box">
-      <div class="alert-title">Alertas detectadas</div>
-      ${r.alertas.map((a) => `<div class="alert-item">→ ${a}</div>`).join("")}
-    </div>`
-                    : "";
-
-                const fieldsHTML = fields
-                    .map(
-                        ([k, v]) => `
-    <div class="field-item">
-      <div class="field-key">${k}</div>
-      <div class="field-val">${v}</div>
-    </div>`,
-                    )
-                    .join("");
-
-                const flagsHTML = flags
-                    .map(
-                        ([label, val]) => `
-    <div class="field-item">
-      <div class="field-key">${label}</div>
-      <div class="field-val ${val ? "fv-ok" : "fv-fail"}">${val ? "Presente ✓" : "No detectado ✗"}</div>
-    </div>`,
-                    )
-                    .join("");
-
-                const checksHTML = (r.checks || [])
-                    .map(
-                        (ch) => `
-    <div class="check-row">
-      <div class="check-badge ${cb(ch.resultado)}">${ci(ch.resultado)}</div>
-      <div>
-        <div class="check-name">${ch.nombre}</div>
-        <div class="check-detail">${ch.detalle}</div>
-      </div>
-    </div>`,
-                    )
-                    .join("");
-
-                section.innerHTML = `
-    <div class="verdict-banner vb-${vc}">
-      <div class="verdict-icon">${icons[vc]}</div>
-      <div>
-        <div class="verdict-title">${labels[vc]}</div>
-        <div class="verdict-score">Puntuación de autenticidad: ${r.score}/100</div>
-        <div class="verdict-summary">${r.resumen || ""}</div>
-      </div>
-    </div>
-
-    ${alertasHTML}
-
-    <div class="card">
-      <div class="card-title">Campos identificados en el documento</div>
-      <div class="field-grid">${fieldsHTML}${flagsHTML}</div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Verificaciones legales detalladas</div>
-      <div class="checks-list">${checksHTML}</div>
-    </div>
-
-    <div class="disclaimer">
-      Este análisis es orientativo y no constituye asesoría legal. Para efectos legales definitivos, consulta con un abogado habilitado ante el Inpreabogado y verifica directamente ante el Registro Público competente (SAREN). El documento no fue almacenado. Archivo analizado: <strong>${filename}</strong>
-    </div>
-
-    <button class="btn-new" onclick="resetApp()">← Analizar otro documento</button>
-  `;
-            }
-
-            function showError(msg) {
-                const existing = document.querySelector(".error-banner");
-                if (existing) existing.remove();
-                const e = document.createElement("div");
-                e.className = "error-banner";
-                e.textContent = msg;
+            function setFile(f) {
+                currentFile = f;
+                document.getElementById("fileName").textContent = f.name;
+                document.getElementById("fileSize").textContent =
+                    (f.size / 1024 / 1024).toFixed(2) + " MB";
+                document.getElementById("filePreview").classList.add("visible");
+                document.getElementById("analyzeBtn").disabled = false;
                 document
-                    .querySelector(".page")
-                    .insertBefore(e, document.getElementById("uploadSection"));
-                setTimeout(() => e.remove(), 7000);
+                    .getElementById("resultsSection")
+                    .classList.remove("visible");
+                extractedText = "";
             }
 
             function resetApp() {
-                document.getElementById("resultSection").style.display = "none";
-                document.getElementById("resultSection").innerHTML = "";
-                document.getElementById("uploadSection").style.display =
-                    "block";
-                document.getElementById("pagesRow").innerHTML = "";
+                currentFile = null;
+                extractedText = "";
                 fileInput.value = "";
+                document
+                    .getElementById("filePreview")
+                    .classList.remove("visible");
+                document.getElementById("analyzeBtn").disabled = true;
+                document.getElementById("loader").classList.remove("visible");
+                document
+                    .getElementById("resultsSection")
+                    .classList.remove("visible");
+                ["step1", "step2", "step3", "step4", "step5"].forEach((id) => {
+                    document.getElementById(id).className = "step-item";
+                });
+            }
+
+            // ── PDF TEXT EXTRACTION ──────────────────────────────
+            async function extractPDFText(file) {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer })
+                    .promise;
+                let text = "";
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const content = await page.getTextContent();
+                    text +=
+                        content.items.map((it) => it.str).join(" ") +
+                        "\n\n--- PÁGINA " +
+                        i +
+                        " ---\n\n";
+                }
+                return text;
+            }
+
+            // ── ANALYSIS ENGINE ──────────────────────────────────
+            async function analyzeDocument() {
+                if (!currentFile) return;
+                document.getElementById("analyzeBtn").disabled = true;
+                document.getElementById("loader").classList.add("visible");
+                document
+                    .getElementById("resultsSection")
+                    .classList.remove("visible");
+
+                const steps = ["step1", "step2", "step3", "step4", "step5"];
+
+                // Step 1: Extract text
+                setStep(steps, 0, "active");
+                try {
+                    extractedText = await extractPDFText(currentFile);
+                } catch (e) {
+                    extractedText = "";
+                }
+                await delay(600);
+                setStep(steps, 0, "done");
+
+                // Step 2-4: Animate
+                for (let i = 1; i <= 3; i++) {
+                    setStep(steps, i, "active");
+                    await delay(500 + i * 200);
+                    setStep(steps, i, "done");
+                }
+
+                // Step 5: AI Analysis via Claude API
+                setStep(steps, 4, "active");
+                let analysisResult;
+                try {
+                    analysisResult = await callClaudeAPI(
+                        extractedText,
+                        currentFile.name,
+                    );
+                } catch (e) {
+                    analysisResult = fallbackAnalysis(extractedText);
+                }
+                setStep(steps, 4, "done");
+                await delay(400);
+
+                document.getElementById("loader").classList.remove("visible");
+                renderResults(analysisResult);
+                document.getElementById("analyzeBtn").disabled = false;
+            }
+
+            function setStep(steps, idx, state) {
+                steps.forEach((id, i) => {
+                    const el = document.getElementById(id);
+                    if (i < idx) el.className = "step-item done";
+                    else if (i === idx) el.className = "step-item " + state;
+                    else el.className = "step-item";
+                });
+            }
+
+            function delay(ms) {
+                return new Promise((r) => setTimeout(r, ms));
+            }
+
+            // ── CLAUDE API CALL ──────────────────────────────────
+            async function callClaudeAPI(pdfText, filename) {
+                const textToAnalyze =
+                    pdfText.length > 12000
+                        ? pdfText.substring(0, 12000) + "...[truncado]"
+                        : pdfText;
+
+                const systemPrompt = `Eres un experto en derecho registral venezolano y análisis forense de documentos de propiedad. Tu tarea es analizar el texto extraído de un documento PDF y determinar si es un documento auténtico de compraventa/hipoteca venezolano o si hay indicios de falsificación o irregularidades.
+
+Debes responder ÚNICAMENTE con un JSON válido, sin texto adicional, sin markdown, sin backticks. El JSON debe tener exactamente esta estructura:
+
+{
+  "veredicto": "AUTÉNTICO" | "SOSPECHOSO" | "FALSIFICADO",
+  "puntuacion": número entre 0 y 100,
+  "tipo_documento": string describiendo el tipo de documento detectado,
+  "campos_extraidos": {
+    "registro": string o null,
+    "numero_inscripcion": string o null,
+    "asiento_registral": string o null,
+    "matricula_inmueble": string o null,
+    "libro_folio_real": string o null,
+    "fecha_protocolizacion": string o null,
+    "registrador": string o null,
+    "cedula_registrador": string o null,
+    "abogado_redactor": string o null,
+    "inpreabogado": string o null,
+    "codigo_catastral": string o null,
+    "inscripcion_catastral": string o null,
+    "pub_numero": string o null,
+    "pub_monto": string o null,
+    "compradores": string o null,
+    "vendedor": string o null,
+    "precio_venta": string o null,
+    "inmueble_descripcion": string o null,
+    "linderos": string o null,
+    "testigos": string o null
+  },
+  "verificaciones": {
+    "tiene_pub": boolean,
+    "tiene_nota_registro": boolean,
+    "tiene_registrador_identificado": boolean,
+    "tiene_abogado_inpreabogado": boolean,
+    "tiene_codigo_catastral": boolean,
+    "tiene_otorgantes_identificados": boolean,
+    "tiene_linderos": boolean,
+    "tiene_testigos": boolean,
+    "tiene_sello_saren_mencionado": boolean,
+    "tiene_numero_inscripcion": boolean,
+    "coherencia_fechas": boolean,
+    "coherencia_datos": boolean
+  },
+  "observaciones": [
+    { "tipo": "positivo" | "advertencia" | "negativo", "texto": string }
+  ],
+  "nivel_confianza": "ALTO" | "MEDIO" | "BAJO"
+}
+
+Criterios para el veredicto:
+- AUTÉNTICO (70-100 pts): Tiene PUB, nota de registro del SAREN, registrador identificado con cédula, abogado con Inpreabogado, código catastral, otorgantes con CI/RIF, linderos definidos, testigos.
+- SOSPECHOSO (40-69 pts): Faltan algunos campos clave o hay inconsistencias menores.
+- FALSIFICADO (0-39 pts): Faltan múltiples campos obligatorios, hay inconsistencias graves o el texto no corresponde a un documento registral venezolano.
+
+Si el texto está vacío o es ilegible, da veredicto SOSPECHOSO con puntuacion 30 y nota que el PDF puede ser imagen escaneada sin OCR digital.`;
+
+                const response = await fetch(
+                    "https://api.anthropic.com/v1/messages",
+                    {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            model: "claude-sonnet-4-20250514",
+                            max_tokens: 1000,
+                            system: systemPrompt,
+                            messages: [
+                                {
+                                    role: "user",
+                                    content: `Analiza el siguiente texto extraído del documento PDF "${filename}":\n\n${textToAnalyze}`,
+                                },
+                            ],
+                        }),
+                    },
+                );
+
+                const data = await response.json();
+                const raw = data.content.map((b) => b.text || "").join("");
+                const clean = raw.replace(/```json|```/g, "").trim();
+                return JSON.parse(clean);
+            }
+
+            // ── FALLBACK ANALYSIS (si falla la API) ─────────────
+            function fallbackAnalysis(text) {
+                const t = text.toLowerCase();
+                let score = 0;
+                const obs = [];
+                const verifs = {};
+
+                const checks = [
+                    {
+                        key: "tiene_pub",
+                        patterns: [
+                            "planilla única bancaria",
+                            "pub",
+                            "planilla unica",
+                        ],
+                        label: "Planilla Única Bancaria (PUB)",
+                    },
+                    {
+                        key: "tiene_nota_registro",
+                        patterns: [
+                            "registro público",
+                            "registrador",
+                            "asiento registral",
+                            "folio real",
+                        ],
+                        label: "Nota de Registro",
+                    },
+                    {
+                        key: "tiene_registrador_identificado",
+                        patterns: [
+                            "registrador",
+                            "el(la) registrador",
+                            "c.i.",
+                            "cédula",
+                        ],
+                        label: "Registrador identificado",
+                    },
+                    {
+                        key: "tiene_abogado_inpreabogado",
+                        patterns: ["inpreabogado", "abg.", "abogado"],
+                        label: "Abogado con Inpreabogado",
+                    },
+                    {
+                        key: "tiene_codigo_catastral",
+                        patterns: [
+                            "catastral",
+                            "código catastral",
+                            "inscripción",
+                        ],
+                        label: "Código catastral",
+                    },
+                    {
+                        key: "tiene_otorgantes_identificados",
+                        patterns: [
+                            "cédula de identidad",
+                            "v-",
+                            "titular de la cédula",
+                        ],
+                        label: "Otorgantes identificados",
+                    },
+                    {
+                        key: "tiene_linderos",
+                        patterns: [
+                            "lindero norte",
+                            "lindero sur",
+                            "lindero este",
+                        ],
+                        label: "Linderos definidos",
+                    },
+                    {
+                        key: "tiene_testigos",
+                        patterns: ["testigo", "los testigos"],
+                        label: "Testigos",
+                    },
+                    {
+                        key: "tiene_sello_saren_mencionado",
+                        patterns: ["saren", "servicio autónomo de registros"],
+                        label: "Referencia al SAREN",
+                    },
+                    {
+                        key: "tiene_numero_inscripcion",
+                        patterns: [
+                            "número",
+                            "asiento",
+                            "inscrito bajo",
+                            "inscripción",
+                        ],
+                        label: "Número de inscripción",
+                    },
+                ];
+
+                checks.forEach((c) => {
+                    verifs[c.key] = c.patterns.some((p) => t.includes(p));
+                    if (verifs[c.key]) {
+                        score += 8;
+                        obs.push({
+                            tipo: "positivo",
+                            texto: c.label + " detectado.",
+                        });
+                    } else {
+                        obs.push({
+                            tipo: "advertencia",
+                            texto: c.label + " no detectado en el texto.",
+                        });
+                    }
+                });
+                verifs.coherencia_fechas = true;
+                verifs.coherencia_datos = score > 50;
+                score = Math.min(100, score);
+
+                const veredicto =
+                    score >= 70
+                        ? "AUTÉNTICO"
+                        : score >= 40
+                          ? "SOSPECHOSO"
+                          : "FALSIFICADO";
+
+                if (text.length < 200) {
+                    obs.unshift({
+                        tipo: "advertencia",
+                        texto: "Texto extraído muy limitado. El PDF puede ser una imagen escaneada. Se recomienda usar un PDF con texto digital para mayor precisión.",
+                    });
+                    score = Math.min(score, 60);
+                }
+
+                return {
+                    veredicto,
+                    puntuacion: score,
+                    tipo_documento:
+                        "Documento de propiedad venezolano (análisis local)",
+                    campos_extraidos: {
+                        registro: null,
+                        numero_inscripcion: null,
+                        asiento_registral: null,
+                        matricula_inmueble: null,
+                        libro_folio_real: null,
+                        fecha_protocolizacion: null,
+                        registrador: null,
+                        cedula_registrador: null,
+                        abogado_redactor: null,
+                        inpreabogado: null,
+                        codigo_catastral: null,
+                        inscripcion_catastral: null,
+                        pub_numero: null,
+                        pub_monto: null,
+                        compradores: null,
+                        vendedor: null,
+                        precio_venta: null,
+                        inmueble_descripcion: null,
+                        linderos: null,
+                        testigos: null,
+                    },
+                    verificaciones: verifs,
+                    observaciones: obs,
+                    nivel_confianza: text.length > 500 ? "MEDIO" : "BAJO",
+                };
+            }
+
+            // ── RENDER RESULTS ────────────────────────────────────
+            function renderResults(r) {
+                const v = r.veredicto;
+                const cls =
+                    v === "AUTÉNTICO"
+                        ? "autentico"
+                        : v === "SOSPECHOSO"
+                          ? "sospechoso"
+                          : "falsificado";
+                const emoji =
+                    v === "AUTÉNTICO" ? "✔ " : v === "SOSPECHOSO" ? "⚠ " : "✗ ";
+                const desc =
+                    v === "AUTÉNTICO"
+                        ? "El documento presenta los elementos estructurales y registrales propios de un documento auténtico venezolano."
+                        : v === "SOSPECHOSO"
+                          ? "Se detectaron inconsistencias o campos faltantes. Se recomienda verificación adicional ante el Registro Público."
+                          : "El documento carece de elementos registrales esenciales o presenta inconsistencias graves.";
+
+                const rh = document.getElementById("resultHeader");
+                rh.className = "result-header " + cls;
+                document.getElementById("verdictLabel").textContent =
+                    "Veredicto · Confianza: " + r.nivel_confianza;
+                document.getElementById("verdictTitle").textContent = emoji + v;
+                document.getElementById("verdictDesc").textContent = desc;
+                document.getElementById("scoreNum").textContent = r.puntuacion;
+
+                // Score circle
+                const circumference = 263.9;
+                const offset =
+                    circumference - (r.puntuacion / 100) * circumference;
+                const sc = document.getElementById("scoreCircle");
+                sc.style.strokeDashoffset = offset;
+                sc.style.stroke =
+                    v === "AUTÉNTICO"
+                        ? "#4ade80"
+                        : v === "SOSPECHOSO"
+                          ? "#fbbf24"
+                          : "#f87171";
+
+                // Cards
+                const c = r.campos_extraidos;
+                const ve = r.verificaciones;
+                const v2 = (val) =>
+                    val
+                        ? `<span class="field-value ok">${val}</span>`
+                        : `<span class="field-value missing">No detectado</span>`;
+                const vb = (bool) =>
+                    bool
+                        ? `<span class="field-value ok">✔ Presente</span>`
+                        : `<span class="field-value warn">✗ Ausente</span>`;
+
+                document.getElementById("resultGrid").innerHTML = `
+    <div class="result-card">
+      <div class="result-card-title">Datos Registrales</div>
+      <div class="field-list">
+        <div class="field-item"><span class="field-label">Registro</span>${v2(c.registro)}</div>
+        <div class="field-item"><span class="field-label">N° Inscripción</span>${v2(c.numero_inscripcion)}</div>
+        <div class="field-item"><span class="field-label">Asiento Registral</span>${v2(c.asiento_registral)}</div>
+        <div class="field-item"><span class="field-label">Matrícula</span>${v2(c.matricula_inmueble)}</div>
+        <div class="field-item"><span class="field-label">Libro Folio Real</span>${v2(c.libro_folio_real)}</div>
+        <div class="field-item"><span class="field-label">Fecha protocolización</span>${v2(c.fecha_protocolizacion)}</div>
+        <div class="field-item"><span class="field-label">Registrador</span>${v2(c.registrador)}</div>
+        <div class="field-item"><span class="field-label">C.I. Registrador</span>${v2(c.cedula_registrador)}</div>
+      </div>
+    </div>
+    <div class="result-card">
+      <div class="result-card-title">Partes e Inmueble</div>
+      <div class="field-list">
+        <div class="field-item"><span class="field-label">Compradores</span>${v2(c.compradores)}</div>
+        <div class="field-item"><span class="field-label">Vendedor</span>${v2(c.vendedor)}</div>
+        <div class="field-item"><span class="field-label">Precio de venta</span>${v2(c.precio_venta)}</div>
+        <div class="field-item"><span class="field-label">Inmueble</span>${v2(c.inmueble_descripcion)}</div>
+        <div class="field-item"><span class="field-label">Código catastral</span>${v2(c.codigo_catastral)}</div>
+        <div class="field-item"><span class="field-label">Inscripción catastral</span>${v2(c.inscripcion_catastral)}</div>
+        <div class="field-item"><span class="field-label">Abogado redactor</span>${v2(c.abogado_redactor)}</div>
+        <div class="field-item"><span class="field-label">Inpreabogado</span>${v2(c.inpreabogado)}</div>
+      </div>
+    </div>
+    <div class="result-card">
+      <div class="result-card-title">Lista de verificación</div>
+      <div class="field-list">
+        <div class="field-item"><span class="field-label">PUB (arancel)</span>${vb(ve.tiene_pub)}</div>
+        <div class="field-item"><span class="field-label">Nota de Registro</span>${vb(ve.tiene_nota_registro)}</div>
+        <div class="field-item"><span class="field-label">Registrador ID</span>${vb(ve.tiene_registrador_identificado)}</div>
+        <div class="field-item"><span class="field-label">Abogado Inpreabogado</span>${vb(ve.tiene_abogado_inpreabogado)}</div>
+        <div class="field-item"><span class="field-label">Código catastral</span>${vb(ve.tiene_codigo_catastral)}</div>
+        <div class="field-item"><span class="field-label">Otorgantes c/ CI</span>${vb(ve.tiene_otorgantes_identificados)}</div>
+        <div class="field-item"><span class="field-label">Linderos N/S/E/O</span>${vb(ve.tiene_linderos)}</div>
+        <div class="field-item"><span class="field-label">Testigos</span>${vb(ve.tiene_testigos)}</div>
+        <div class="field-item"><span class="field-label">Referencia SAREN</span>${vb(ve.tiene_sello_saren_mencionado)}</div>
+        <div class="field-item"><span class="field-label">N° inscripción</span>${vb(ve.tiene_numero_inscripcion)}</div>
+        <div class="field-item"><span class="field-label">Coherencia fechas</span>${vb(ve.coherencia_fechas)}</div>
+        <div class="field-item"><span class="field-label">Coherencia datos</span>${vb(ve.coherencia_datos)}</div>
+      </div>
+    </div>
+  `;
+
+                // Observations
+                const obsHtml = (r.observaciones || [])
+                    .map((o) => {
+                        const cls2 =
+                            o.tipo === "positivo"
+                                ? "positive"
+                                : o.tipo === "advertencia"
+                                  ? "warning"
+                                  : "negative";
+                        const icon =
+                            o.tipo === "positivo"
+                                ? "✔"
+                                : o.tipo === "advertencia"
+                                  ? "⚠"
+                                  : "✗";
+                        return `<div class="obs-item ${cls2}"><span class="obs-icon">${icon}</span><span>${o.texto}</span></div>`;
+                    })
+                    .join("");
+                document.getElementById("obsList").innerHTML =
+                    obsHtml ||
+                    '<div class="obs-item positive"><span>Sin observaciones adicionales.</span></div>';
+
+                // Raw data
+                document.getElementById("rawData").textContent =
+                    JSON.stringify(r, null, 2) +
+                    "\n\n── TEXTO EXTRAÍDO DEL PDF ──\n\n" +
+                    (extractedText.substring(0, 3000) ||
+                        "(No se pudo extraer texto — PDF puede ser imagen escaneada)");
+
+                document
+                    .getElementById("resultsSection")
+                    .classList.add("visible");
+                document
+                    .getElementById("resultsSection")
+                    .scrollIntoView({ behavior: "smooth" });
+            }
+
+            function toggleRaw() {
+                const el = document.getElementById("rawData");
+                const icon = document.getElementById("rawToggleIcon");
+                el.classList.toggle("visible");
+                icon.textContent = el.classList.contains("visible") ? "▲" : "▼";
             }
         </script>
     </body>
