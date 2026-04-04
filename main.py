@@ -88,11 +88,9 @@ Criterios de puntuación:
 IMPORTANTE: Si no puedes leer bien un campo por calidad de imagen, márcalo como WARN con detalle explicativo.
 No marques como FAIL por baja resolución; solo por ausencia confirmada o inconsistencia real."""
 
-
 @app.get("/")
 async def root():
     return FileResponse("static/index.html")
-
 
 @app.post("/analizar")
 async def analizar_documento(file: UploadFile = File(...)):
@@ -100,7 +98,7 @@ async def analizar_documento(file: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail="Solo se aceptan archivos PDF")
 
     if not ANTHROPIC_API_KEY:
-        raise HTTPException(status_code=500, detail="API key de Anthropic no configurada")
+        raise HTTPException(status_code=500, detail="ANTHROPIC_API_KEY no está configurada en las variables de entorno de Render")
 
     pdf_bytes = await file.read()
 
@@ -140,24 +138,32 @@ async def analizar_documento(file: UploadFile = File(...)):
             }
         })
 
-    async with httpx.AsyncClient(timeout=120.0) as client:
-        response = await client.post(
-            "https://api.anthropic.com/v1/messages",
-            headers={
-                "x-api-key": ANTHROPIC_API_KEY,
-                "anthropic-version": "2023-06-01",
-                "content-type": "application/json"
-            },
-            json={
-                "model": "claude-opus-4-5",
-                "max_tokens": 2000,
-                "system": SYSTEM_PROMPT,
-                "messages": [{"role": "user", "content": content_blocks}]
-            }
-        )
+    try:
+        async with httpx.AsyncClient(timeout=120.0) as client:
+            response = await client.post(
+                "https://api.anthropic.com/v1/messages",
+                headers={
+                    "x-api-key": ANTHROPIC_API_KEY,
+                    "anthropic-version": "2023-06-01",
+                    "content-type": "application/json"
+                },
+                json={
+                    "model": "claude-sonnet-4-5",
+                    "max_tokens": 2000,
+                    "system": SYSTEM_PROMPT,
+                    "messages": [{"role": "user", "content": content_blocks}]
+                }
+            )
+    except httpx.TimeoutException:
+        raise HTTPException(status_code=500, detail="Tiempo de espera agotado al contactar la API de Anthropic")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error de conexión con Anthropic: {str(e)}")
 
     if response.status_code != 200:
-        raise HTTPException(status_code=500, detail=f"Error de la API: {response.text}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error Anthropic {response.status_code}: {response.text[:500]}"
+        )
 
     data = response.json()
     raw_text = "".join(block.get("text", "") for block in data.get("content", []))
@@ -166,11 +172,13 @@ async def analizar_documento(file: UploadFile = File(...)):
     try:
         result = json.loads(clean_text)
     except json.JSONDecodeError:
-        raise HTTPException(status_code=500, detail="Error procesando respuesta de IA")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Respuesta inesperada del modelo: {clean_text[:300]}"
+        )
 
     return result
 
-
 @app.get("/health")
 async def health():
-    return {"status": "ok"}
+    return {"status": "ok", "api_key_configurada": bool(ANTHROPIC_API_KEY)}
