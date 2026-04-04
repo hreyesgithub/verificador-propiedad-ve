@@ -26,7 +26,7 @@ app.add_middleware(
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "").strip()
-MODEL = "claude-sonnet-4-5"
+MODEL = "claude-3-5-sonnet" # "claude-sonnet-4-5"
 MAX_PAGES = 20        # Aumentado a 20 páginas
 RENDER_SCALE = 1.5    # Reducido de 2.0 a 1.5 para bajar tamaño de payload
 
