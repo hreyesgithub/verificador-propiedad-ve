@@ -1077,93 +1077,73 @@
                 return new Promise((r) => setTimeout(r, ms));
             }
 
-            // ── CLAUDE API CALL ──────────────────────────────────
+            // ── BACKEND API CALL (Vision — funciona con PDFs escaneados) ──
             async function callClaudeAPI(pdfText, filename) {
-                const textToAnalyze =
-                    pdfText.length > 12000
-                        ? pdfText.substring(0, 12000) + "...[truncado]"
-                        : pdfText;
+                // Enviamos el archivo original al backend, que lo convierte
+                // a imágenes y usa Claude Vision. Así funciona con PDFs escaneados.
+                const formData = new FormData();
+                formData.append("file", currentFile);
 
-                const systemPrompt = `Eres un experto en derecho registral venezolano y análisis forense de documentos de propiedad. Tu tarea es analizar el texto extraído de un documento PDF y determinar si es un documento auténtico de compraventa/hipoteca venezolano o si hay indicios de falsificación o irregularidades.
+                const response = await fetch("/analizar", {
+                    method: "POST",
+                    body: formData,
+                });
 
-Debes responder ÚNICAMENTE con un JSON válido, sin texto adicional, sin markdown, sin backticks. El JSON debe tener exactamente esta estructura:
-
-{
-  "veredicto": "AUTÉNTICO" | "SOSPECHOSO" | "FALSIFICADO",
-  "puntuacion": número entre 0 y 100,
-  "tipo_documento": string describiendo el tipo de documento detectado,
-  "campos_extraidos": {
-    "registro": string o null,
-    "numero_inscripcion": string o null,
-    "asiento_registral": string o null,
-    "matricula_inmueble": string o null,
-    "libro_folio_real": string o null,
-    "fecha_protocolizacion": string o null,
-    "registrador": string o null,
-    "cedula_registrador": string o null,
-    "abogado_redactor": string o null,
-    "inpreabogado": string o null,
-    "codigo_catastral": string o null,
-    "inscripcion_catastral": string o null,
-    "pub_numero": string o null,
-    "pub_monto": string o null,
-    "compradores": string o null,
-    "vendedor": string o null,
-    "precio_venta": string o null,
-    "inmueble_descripcion": string o null,
-    "linderos": string o null,
-    "testigos": string o null
-  },
-  "verificaciones": {
-    "tiene_pub": boolean,
-    "tiene_nota_registro": boolean,
-    "tiene_registrador_identificado": boolean,
-    "tiene_abogado_inpreabogado": boolean,
-    "tiene_codigo_catastral": boolean,
-    "tiene_otorgantes_identificados": boolean,
-    "tiene_linderos": boolean,
-    "tiene_testigos": boolean,
-    "tiene_sello_saren_mencionado": boolean,
-    "tiene_numero_inscripcion": boolean,
-    "coherencia_fechas": boolean,
-    "coherencia_datos": boolean
-  },
-  "observaciones": [
-    { "tipo": "positivo" | "advertencia" | "negativo", "texto": string }
-  ],
-  "nivel_confianza": "ALTO" | "MEDIO" | "BAJO"
-}
-
-Criterios para el veredicto:
-- AUTÉNTICO (70-100 pts): Tiene PUB, nota de registro del SAREN, registrador identificado con cédula, abogado con Inpreabogado, código catastral, otorgantes con CI/RIF, linderos definidos, testigos.
-- SOSPECHOSO (40-69 pts): Faltan algunos campos clave o hay inconsistencias menores.
-- FALSIFICADO (0-39 pts): Faltan múltiples campos obligatorios, hay inconsistencias graves o el texto no corresponde a un documento registral venezolano.
-
-Si el texto está vacío o es ilegible, da veredicto SOSPECHOSO con puntuacion 30 y nota que el PDF puede ser imagen escaneada sin OCR digital.`;
-
-                const response = await fetch(
-                    "https://api.anthropic.com/v1/messages",
-                    {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            model: "claude-sonnet-4-20250514",
-                            max_tokens: 1000,
-                            system: systemPrompt,
-                            messages: [
-                                {
-                                    role: "user",
-                                    content: `Analiza el siguiente texto extraído del documento PDF "${filename}":\n\n${textToAnalyze}`,
-                                },
-                            ],
-                        }),
-                    },
-                );
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.detail || "Error del servidor");
+                }
 
                 const data = await response.json();
-                const raw = data.content.map((b) => b.text || "").join("");
-                const clean = raw.replace(/```json|```/g, "").trim();
-                return JSON.parse(clean);
+
+                // El backend devuelve un formato ligeramente distinto.
+                // Lo normalizamos al formato que espera renderResults().
+                return {
+                    veredicto: data.veredicto,
+                    puntuacion: data.score,
+                    tipo_documento: data.tipo_documento,
+                    nivel_confianza: data.score >= 85 ? "ALTO" : data.score >= 50 ? "MEDIO" : "BAJO",
+                    campos_extraidos: {
+                        registro:              data.campos_encontrados?.registro_publico ?? null,
+                        numero_inscripcion:    data.campos_encontrados?.numero_documento ?? null,
+                        asiento_registral:     data.campos_encontrados?.asiento_registral ?? null,
+                        matricula_inmueble:    data.campos_encontrados?.matricula_inmueble ?? null,
+                        libro_folio_real:      null,
+                        fecha_protocolizacion: data.campos_encontrados?.fecha_protocolizacion ?? null,
+                        registrador:           data.campos_encontrados?.registrador ?? null,
+                        cedula_registrador:    null,
+                        abogado_redactor:      data.campos_encontrados?.abogado_inpreabogado ?? null,
+                        inpreabogado:          data.campos_encontrados?.abogado_inpreabogado ?? null,
+                        codigo_catastral:      data.campos_encontrados?.codigo_catastral ?? null,
+                        inscripcion_catastral: null,
+                        pub_numero:            data.campos_encontrados?.pub_saren ?? null,
+                        pub_monto:             null,
+                        compradores:           data.campos_encontrados?.partes_identificadas ?? null,
+                        vendedor:              data.campos_encontrados?.partes_identificadas ?? null,
+                        precio_venta:          data.campos_encontrados?.precio ?? null,
+                        inmueble_descripcion:  data.campos_encontrados?.inmueble_descripcion ?? null,
+                        linderos:              data.campos_encontrados?.linderos_presentes ? "Presentes" : null,
+                        testigos:              null,
+                    },
+                    verificaciones: {
+                        tiene_pub:                      !!data.campos_encontrados?.pub_saren,
+                        tiene_nota_registro:            !!data.campos_encontrados?.nota_registrador,
+                        tiene_registrador_identificado: !!data.campos_encontrados?.registrador,
+                        tiene_abogado_inpreabogado:     !!data.campos_encontrados?.abogado_inpreabogado,
+                        tiene_codigo_catastral:         !!data.campos_encontrados?.codigo_catastral,
+                        tiene_otorgantes_identificados: !!data.campos_encontrados?.partes_identificadas,
+                        tiene_linderos:                 !!data.campos_encontrados?.linderos_presentes,
+                        tiene_testigos:                 false,
+                        tiene_sello_saren_mencionado:   !!data.campos_encontrados?.sellos_presentes,
+                        tiene_numero_inscripcion:       !!data.campos_encontrados?.numero_documento,
+                        coherencia_fechas:              true,
+                        coherencia_datos:               data.score >= 70,
+                    },
+                    observaciones: [
+                        ...(data.alertas || []).map(a => ({ tipo: "advertencia", texto: a })),
+                        { tipo: data.score >= 85 ? "positivo" : "negativo", texto: data.resumen || "" },
+                    ].filter(o => o.texto),
+                };
             }
 
             // ── FALLBACK ANALYSIS (si falla la API) ─────────────
